@@ -61,31 +61,46 @@ button {
   background:#ff6600;
   color:white;
   border:none;
-  padding:5px;
-  cursor:pointer;
+  padding:6px;
   border-radius:5px;
+  cursor:pointer;
 }
 
-/* CART */
+/* CART BUTTON */
+.cart-btn {
+  position: fixed;
+  right: 15px;
+  bottom: 20px;
+  background: #ff6600;
+  color: white;
+  font-size: 22px;
+  padding: 12px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* CART PANEL */
 .cart {
-  position:fixed;
-  right:0;
-  top:0;
-  width:300px;
-  height:100%;
-  background:white;
-  padding:10px;
-  overflow:auto;
+  position: fixed;
+  right: -100%;
+  top: 0;
+  width: 300px;
+  height: 100%;
+  background: white;
+  padding: 15px;
+  transition: 0.3s;
+  box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+  z-index: 999;
+}
+
+.cart.open {
+  right: 0;
 }
 
 .cart-item {
-  font-size:14px;
-  margin-bottom:5px;
-}
-
-.total {
-  margin-top:10px;
-  font-weight:bold;
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
 /* CHECKOUT */
@@ -123,19 +138,28 @@ button {
 
 <div class="products" id="products"></div>
 
-<div class="cart">
+<!-- CART BUTTON -->
+<div class="cart-btn" onclick="toggleCart()">
+  🛒 <span id="cart-count">0</span>
+</div>
+
+<!-- CART PANEL -->
+<div class="cart" id="cartBox">
   <h3>Korpa</h3>
+
   <div id="cart-items"></div>
 
-  <div class="total">
+  <div>
     Artikli: <span id="subtotal">0</span>€<br>
     Dostava: <span id="shipping">0</span>€<br>
-    Ukupno: <span id="total">0</span>€
+    <b>Ukupno: <span id="total">0</span>€</b>
   </div>
 
+  <br>
   <button onclick="openCheckout()">Checkout</button>
 </div>
 
+<!-- CHECKOUT -->
 <div class="checkout" id="checkoutBox">
   <input id="ime" placeholder="Ime"><br><br>
   <input id="telefon" placeholder="Telefon"><br><br>
@@ -146,7 +170,7 @@ button {
 
 <script>
 
-/* GLOBAL */
+/* DATA */
 let products = [];
 let cart = [];
 
@@ -193,7 +217,13 @@ function addToCart(i){
   renderCart();
 }
 
-/* CART */
+/* REMOVE */
+function removeItem(i){
+  cart.splice(i,1);
+  renderCart();
+}
+
+/* CART RENDER */
 function renderCart(){
   let container = document.getElementById("cart-items");
   container.innerHTML = "";
@@ -220,12 +250,12 @@ function renderCart(){
   document.getElementById("subtotal").innerText = subtotal;
   document.getElementById("shipping").innerText = shipping;
   document.getElementById("total").innerText = total;
+  document.getElementById("cart-count").innerText = cart.length;
 }
 
-/* REMOVE */
-function removeItem(i){
-  cart.splice(i,1);
-  renderCart();
+/* TOGGLE CART */
+function toggleCart(){
+  document.getElementById("cartBox").classList.toggle("open");
 }
 
 /* CHECKOUT */
