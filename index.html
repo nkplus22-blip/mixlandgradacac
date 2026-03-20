@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MixLand</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #e4ecf7);
+  color: #333;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: white;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  height: 50px;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  gap: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+  transition: 0.3s;
+}
+
+nav a:hover {
+  color: #ff6600;
+}
+
+/* HAMBURGER */
+.hamburger {
+  display: none;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* MOBILE MENU */
+.mobile-menu {
+  display: none;
+  flex-direction: column;
+  background: white;
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  width: 200px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  padding: 15px;
+}
+
+.mobile-menu a {
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.mobile-menu a:hover {
+  background: #f2f2f2;
+  border-radius: 5px;
+}
+
+/* SECTIONS */
+section {
+  max-width: 900px;
+  margin: 40px auto;
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  animation: fadeIn 1s ease;
+}
+
+h2 {
+  margin-bottom: 15px;
+}
+
+p {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+/* MAP */
+iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+  border-radius: 10px;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
+  background: #333;
+  color: white;
+  margin-top: 40px;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+/* RESPONSIVE */
+@media(max-width: 768px) {
+  nav {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <img src="mixlandlogo.PNG" class="logo">
+
+  <nav>
+    <a href="index.html">Početna</a>
+    <a href="shop.html">Shop</a>
+    <a href="utisci.html">Utisci</a>
+  </nav>
+
+  <div class="hamburger" onclick="toggleMenu()">☰</div>
+
+  <div class="mobile-menu" id="menu">
+    <a href="index.html">Početna</a>
+    <a href="shop.html">Shop</a>
+    <a href="utisci.html">Utisci</a>
+  </div>
+</header>
+
+<section>
+  <h2>O nama</h2>
+
+  <p>
+    MixLand je moderna trgovina koja nudi širok asortiman proizvoda za svakodnevni život,
+    inspirisana konceptom radnji gdje na jednom mjestu možete pronaći sve što vam je potrebno.
+  </p>
+
+  <p>
+    Nalazimo se u Gradačcu i u našem prostoru imate ponudu svega i svačega vezanog za domaćinstvo,
+    organizaciju, dekoraciju i svakodnevne potrebe.
+  </p>
+
+  <p>
+    Također nudimo online narudžbe širom Bosne i Hercegovine.
+    Za narudžbe preko 50 KM dostava je besplatna.
+  </p>
+</section>
+
+<section>
+  <h2>Lokacija</h2>
+
+  <iframe 
+    src="https://maps.google.com/maps?q=Gradacac&t=&z=13&ie=UTF8&iwloc=&output=embed">
+  </iframe>
+</section>
+
+<section>
+  <h2>Kontakt</h2>
+
+  <p>📍 Gradačac, BiH</p>
+  <p>📞 061 000 000</p>
+  <p>📧 mixland@gmail.com</p>
+</section>
+
+<footer>
+  <p>© 2026 MixLand</p>
+</footer>
+
+<script>
+function toggleMenu() {
+  let menu = document.getElementById("menu");
+  menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+}
+</script>
+
+</body>
+</html>
