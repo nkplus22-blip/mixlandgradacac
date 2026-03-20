@@ -3,221 +3,265 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MixLand Utisci</title>
+<title>MixLand Shop</title>
 
 <style>
-body{
+body {
   margin:0;
-  font-family:'Segoe UI',sans-serif;
+  font-family: Arial, sans-serif;
   background:#f4f6f9;
 }
 
 /* HEADER */
-header{
-  background:white;
+header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   padding:15px;
-  text-align:center;
-  box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-.logo{height:50px}
-
-/* FORM */
-.form{
-  max-width:600px;
-  margin:20px auto;
   background:white;
-  padding:20px;
-  border-radius:10px;
 }
 
-input, textarea, select{
-  width:100%;
+.logo { height:40px; }
+
+/* SEARCH */
+.topbar {
+  display:flex;
+  gap:10px;
   padding:10px;
-  margin-bottom:10px;
 }
 
-button{
+.topbar input, .topbar select {
+  padding:8px;
+  flex:1;
+}
+
+/* PRODUCTS */
+.products {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px;
+  padding:10px;
+}
+
+.product {
+  background:white;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.img {
+  height:100px;
+  background:#ddd;
+  margin-bottom:10px;
+  border-radius:8px;
+}
+
+button {
   background:#ff6600;
   color:white;
   border:none;
-  padding:10px;
-  border-radius:5px;
+  padding:5px;
   cursor:pointer;
+  border-radius:5px;
 }
 
-/* STATS */
-.stats{
-  max-width:600px;
-  margin:auto;
-  text-align:center;
-}
-
-/* REVIEWS */
-.reviews{
-  max-width:600px;
-  margin:20px auto;
-}
-
-.review{
+/* CART */
+.cart {
+  position:fixed;
+  right:0;
+  top:0;
+  width:300px;
+  height:100%;
   background:white;
-  padding:15px;
-  margin-bottom:10px;
-  border-radius:10px;
-  animation:fade 0.4s;
+  padding:10px;
+  overflow:auto;
 }
 
-.name{font-weight:bold}
-.stars{color:gold}
+.cart-item {
+  font-size:14px;
+  margin-bottom:5px;
+}
 
-/* ACTIONS */
-.actions{
-  display:flex;
-  justify-content:space-between;
+.total {
   margin-top:10px;
+  font-weight:bold;
 }
 
-.like{cursor:pointer;color:green}
-.dislike{cursor:pointer;color:red}
-.delete{cursor:pointer;color:gray}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1}
+/* CHECKOUT */
+.checkout {
+  display:none;
+  position:fixed;
+  top:10%;
+  left:50%;
+  transform:translateX(-50%);
+  background:white;
+  padding:20px;
+  width:300px;
+  border-radius:10px;
 }
 </style>
+
 </head>
 
 <body>
 
 <header>
   <img src="mixlandlogo.PNG" class="logo">
-  <h2>Utisci kupaca</h2>
+  <h3>Shop</h3>
 </header>
 
-<div class="form">
-  <input id="name" placeholder="Vaše ime">
-  <textarea id="comment" placeholder="Vaš komentar"></textarea>
-
-  <select id="rating">
-    <option value="5">★★★★★</option>
-    <option value="4">★★★★☆</option>
-    <option value="3">★★★☆☆</option>
-    <option value="2">★★☆☆☆</option>
-    <option value="1">★☆☆☆☆</option>
-  </select>
-
-  <button onclick="addReview()">Pošalji</button>
-</div>
-
-<div class="stats">
-  ⭐ Prosječna ocjena: <span id="avg">0</span>
-</div>
-
-<div class="form">
-  <select id="sort" onchange="render()">
-    <option value="new">Najnoviji</option>
-    <option value="best">Najbolji</option>
+<div class="topbar">
+  <input id="search" placeholder="Pretraži...">
+  <select id="filter">
+    <option value="all">Sve</option>
+    <option value="dom">Domaćinstvo</option>
+    <option value="dekor">Dekoracija</option>
+    <option value="alat">Alati</option>
   </select>
 </div>
 
-<div class="reviews" id="reviews"></div>
+<div class="products" id="products"></div>
+
+<div class="cart">
+  <h3>Korpa</h3>
+  <div id="cart-items"></div>
+
+  <div class="total">
+    Artikli: <span id="subtotal">0</span>€<br>
+    Dostava: <span id="shipping">0</span>€<br>
+    Ukupno: <span id="total">0</span>€
+  </div>
+
+  <button onclick="openCheckout()">Checkout</button>
+</div>
+
+<div class="checkout" id="checkoutBox">
+  <input id="ime" placeholder="Ime"><br><br>
+  <input id="telefon" placeholder="Telefon"><br><br>
+  <textarea id="adresa" placeholder="Adresa"></textarea><br><br>
+
+  <button onclick="sendOrder()">Pošalji</button>
+</div>
 
 <script>
-let reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+
+/* GLOBAL */
+let products = [];
+let cart = [];
+
+/* GENERATE PRODUCTS */
+for(let i=1;i<=100;i++){
+  let cat = (i%3==0) ? "dom" : (i%3==1) ? "dekor" : "alat";
+
+  products.push({
+    name: "Artikal " + i,
+    price: 1,
+    category: cat
+  });
+}
+
+/* RENDER PRODUCTS */
+function renderProducts(){
+  let search = document.getElementById("search").value.toLowerCase();
+  let filter = document.getElementById("filter").value;
+
+  let container = document.getElementById("products");
+  container.innerHTML = "";
+
+  products.forEach((p,i)=>{
+    if((filter=="all" || p.category==filter) && p.name.toLowerCase().includes(search)){
+
+      let div = document.createElement("div");
+      div.className = "product";
+
+      div.innerHTML = `
+        <div class="img"></div>
+        <h4>${p.name}</h4>
+        <p>1.00€</p>
+        <button onclick="addToCart(${i})">Dodaj</button>
+      `;
+
+      container.appendChild(div);
+    }
+  });
+}
 
 /* ADD */
-function addReview(){
-  let name = nameInput.value;
-  let text = comment.value;
-  let rating = parseInt(ratingEl.value);
+function addToCart(i){
+  cart.push(products[i]);
+  renderCart();
+}
 
-  if(!name || !text){ alert("Popuni sve"); return; }
+/* CART */
+function renderCart(){
+  let container = document.getElementById("cart-items");
+  container.innerHTML = "";
 
-  reviews.unshift({
-    id:Date.now(),
-    name,
-    text,
-    rating,
-    likes:0,
-    dislikes:0
+  let subtotal = 0;
+
+  cart.forEach((item,index)=>{
+    subtotal += item.price;
+
+    let div = document.createElement("div");
+    div.className = "cart-item";
+
+    div.innerHTML = `
+      ${item.name} - 1€
+      <span onclick="removeItem(${index})" style="color:red;cursor:pointer;"> ✖</span>
+    `;
+
+    container.appendChild(div);
   });
 
-  save();
-  nameInput.value="";
-  comment.value="";
+  let shipping = subtotal >= 50 ? 0 : 5;
+  let total = subtotal + shipping;
+
+  document.getElementById("subtotal").innerText = subtotal;
+  document.getElementById("shipping").innerText = shipping;
+  document.getElementById("total").innerText = total;
 }
 
-/* SAVE */
-function save(){
-  localStorage.setItem("reviews", JSON.stringify(reviews));
-  render();
+/* REMOVE */
+function removeItem(i){
+  cart.splice(i,1);
+  renderCart();
 }
 
-/* LIKE */
-function like(id){
-  let r = reviews.find(x=>x.id==id);
-  r.likes++;
-  save();
+/* CHECKOUT */
+function openCheckout(){
+  document.getElementById("checkoutBox").style.display = "block";
 }
 
-function dislike(id){
-  let r = reviews.find(x=>x.id==id);
-  r.dislikes++;
-  save();
-}
+/* WHATSAPP */
+function sendOrder(){
+  let ime = document.getElementById("ime").value;
+  let tel = document.getElementById("telefon").value;
+  let adr = document.getElementById("adresa").value;
 
-/* DELETE */
-function remove(id){
-  reviews = reviews.filter(x=>x.id!=id);
-  save();
-}
-
-/* AVG */
-function calcAvg(){
-  if(reviews.length==0) return 0;
-  let sum=0;
-  reviews.forEach(r=>sum+=r.rating);
-  return (sum/reviews.length).toFixed(1);
-}
-
-/* RENDER */
-function render(){
-  let container = document.getElementById("reviews");
-  container.innerHTML="";
-
-  let sorted = [...reviews];
-
-  if(sort.value=="best"){
-    sorted.sort((a,b)=>b.rating-a.rating);
+  if(!ime || !tel || !adr){
+    alert("Popuni sva polja!");
+    return;
   }
 
-  sorted.forEach(r=>{
-    container.innerHTML += `
-      <div class="review">
-        <div class="name">${r.name}</div>
-        <div class="stars">${"★".repeat(r.rating)}</div>
-        <div>${r.text}</div>
+  let msg = "Nova narudžba:%0A";
 
-        <div class="actions">
-          <span class="like" onclick="like(${r.id})">👍 ${r.likes}</span>
-          <span class="dislike" onclick="dislike(${r.id})">👎 ${r.dislikes}</span>
-          <span class="delete" onclick="remove(${r.id})">🗑</span>
-        </div>
-      </div>
-    `;
+  cart.forEach(item=>{
+    msg += item.name + " - 1€%0A";
   });
 
-  document.getElementById("avg").innerText = calcAvg();
+  msg += "%0A" + ime + " | " + tel + "%0A" + adr;
+
+  window.open("https://wa.me/38762154837?text=" + msg);
 }
 
-/* INIT */
-let nameInput=document.getElementById("name");
-let comment=document.getElementById("comment");
-let ratingEl=document.getElementById("rating");
-let sort=document.getElementById("sort");
+/* EVENTS */
+document.getElementById("search").addEventListener("input", renderProducts);
+document.getElementById("filter").addEventListener("change", renderProducts);
 
-render();
+/* INIT */
+renderProducts();
+
 </script>
 
 </body>
